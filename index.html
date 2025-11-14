@@ -453,7 +453,31 @@
       originalPrev();
       playFlipSound();
     }
+    // Stop audio helper — pauses and resets state so mobile browsers stop playback
+    function stopAudioCompletely(){
+      try{
+        if(bgAudio){
+          bgAudio.pause();
+          // reset playback position so some browsers fully release audio resources
+          try{ bgAudio.currentTime = 0; }catch(e){}
+        }
+        musicOn = false;
+        if(volSlider) volSlider.style.display = 'none';
+        if(musicBtn) musicBtn.textContent = '🔈 Nhạc: Tắt';
+      }catch(e){/* ignore */}
+    }
+
+    // Pause/stop audio when page becomes hidden (user switches app/tab) or unloads
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){ stopAudioCompletely(); }
+    });
+    window.addEventListener('pagehide', stopAudioCompletely);
+    window.addEventListener('beforeunload', stopAudioCompletely);
+    window.addEventListener('unload', stopAudioCompletely);
+    window.addEventListener('blur', ()=>{ stopAudioCompletely(); });
+
 
   </script>
 </body>
 </html>
+
